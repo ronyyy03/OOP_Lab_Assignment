@@ -1,0 +1,57 @@
+class ChatThread extends Thread {
+    private String message;
+    private boolean running = true; 
+
+    ChatThread(String msg) {
+        this.message = msg;
+    }
+
+    @Override
+    public void run() {
+        while (running) {
+            System.out.println(Thread.currentThread().getName() + ": " + message);
+            try {
+                Thread.sleep(1000); // simulate delay
+            } catch (InterruptedException e) {
+                System.out.println(Thread.currentThread().getName() + " interrupted");
+            }
+        }
+    }
+    public void stopThread() {
+        running = false;
+    }
+}
+
+public class MultiThreadChatDemo {
+    public static void main(String[] args) {
+        
+        ChatThread sender = new ChatThread("Hello! How are you?");
+        ChatThread receiver = new ChatThread("I am fine, thanks!");
+
+        // Setting priorities
+        sender.setPriority(Thread.MAX_PRIORITY); // High priority
+        receiver.setPriority(Thread.MIN_PRIORITY); // Low priority
+
+        sender.setName("Sender");
+        receiver.setName("Receiver");
+
+        // Start threads
+        sender.start();
+        receiver.start();
+
+        System.out.println("Sender alive? " + sender.isAlive());
+        System.out.println("Receiver alive? " + receiver.isAlive());
+
+        try {
+            // Wait for sender to finish
+            sender.join(3000); // join for 3 sec
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        sender.stopThread();
+        receiver.stopThread();
+
+        System.out.println("Main thread finished!");
+    }
+}
