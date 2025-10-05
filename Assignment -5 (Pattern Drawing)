@@ -1,0 +1,97 @@
+import java.awt.*;
+import javax.swing.*;
+public class PatternDrawing extends JPanel {
+
+    // DDA Line Algorithm
+  
+    void drawDDALine(Graphics g, int x1, int y1, int x2, int y2, String style) {
+        int dx = x2 - x1;
+        int dy = y2 - y1;
+        int steps = Math.max(Math.abs(dx), Math.abs(dy));
+
+        float xInc = dx / (float) steps;
+        float yInc = dy / (float) steps;
+
+        float x = x1, y = y1;
+
+        for (int i = 0; i <= steps; i++) {
+            // Apply line style
+            if (style.equals("DOTTED")) {
+                if (i % 5 == 0) g.drawLine(Math.round(x), Math.round(y), Math.round(x), Math.round(y));
+            } 
+            else if (style.equals("THICK")) {
+                g.fillRect(Math.round(x), Math.round(y), 2, 2); // thicker pixels
+            } 
+            else {
+                g.drawLine(Math.round(x), Math.round(y), Math.round(x), Math.round(y));
+            }
+            x += xInc;
+            y += yInc;
+        }
+    }
+
+    // Bresenham Line Algorithm
+  
+    void drawBresenhamLine(Graphics g, int x1, int y1, int x2, int y2, String style) {
+        int dx = Math.abs(x2 - x1);
+        int dy = Math.abs(y2 - y1);
+        int sx = x1 < x2 ? 1 : -1;
+        int sy = y1 < y2 ? 1 : -1;
+        int err = dx - dy;
+
+        int count = 0;
+
+        while (true) {
+            // Apply line style
+            if (style.equals("DASHED")) {
+                if (count % 10 < 5) g.drawLine(x1, y1, x1, y1);
+            } else { // SOLID
+                g.drawLine(x1, y1, x1, y1);
+            }
+
+            if (x1 == x2 && y1 == y2) break;
+
+            int e2 = 2 * err;
+            if (e2 > -dy) { err -= dy; x1 += sx; }
+            if (e2 < dx) { err += dx; y1 += sy; }
+
+            count++;
+        }
+    }
+
+    @Override
+    public void paint(Graphics g) {
+        super.paint(g);
+
+        // Outer Rectangle (DDA - Thick)
+        drawDDALine(g, 100, 100, 300, 100, "THICK");
+        drawDDALine(g, 300, 100, 300, 200, "THICK");
+        drawDDALine(g, 300, 200, 100, 200, "THICK");
+        drawDDALine(g, 100, 200, 100, 100, "THICK");
+
+        // Inner Rectangle (DDA - Dotted)
+        drawDDALine(g, 150, 130, 250, 130, "DOTTED");
+        drawDDALine(g, 250, 130, 250, 170, "DOTTED");
+        drawDDALine(g, 250, 170, 150, 170, "DOTTED");
+        drawDDALine(g, 150, 170, 150, 130, "DOTTED");
+
+        // Diamond Shape (Bresenham - Mix styles)
+        // Top to Left (Dashed)
+        drawBresenhamLine(g, 200, 100, 100, 150, "DASHED");
+        // Left to Bottom (Solid)
+        drawBresenhamLine(g, 100, 150, 200, 200, "SOLID");
+        // Bottom to Right (Dashed)
+        drawBresenhamLine(g, 200, 200, 300, 150, "DASHED");
+        // Right to Top (Solid)
+        drawBresenhamLine(g, 300, 150, 200, 100, "SOLID");
+    }
+
+    public static void main(String[] args) {
+        JFrame frame = new JFrame("DDA & Bresenham Pattern");
+        PatternDrawing panel = new PatternDrawing();
+        frame.add(panel);
+        frame.setSize(500, 400);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setVisible(true);
+    }
+}
